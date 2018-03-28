@@ -1,0 +1,126 @@
+<head>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.7.0/dist/Chart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+
+<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="ggw.election2018.data.js"></script>
+<script src="ggw.election2018.lib.js"></script>
+
+
+</head>
+
+<body>
+	<div id="master_left" style="width:45%; float:left">
+	</div><div id="master_right" style="width:45%; float:left">
+	</div>
+<script>
+
+var election_2018 = assemble_election_data(raw_candidates, raw_committee_vote_totals, raw_noncommittee_vote_totals, raw_responses, raw_ratings);
+
+var toggleLR = "right";
+var charts_of_races = [];
+for (var each_race in election_2018) {
+	toggleLR = ((toggleLR == "left") ? "right" : "left");
+	var committee_data = [];
+	var noncommittee_data = [];
+	var candidate_names = [];
+	var specific_race = election_2018[each_race];
+	console.log(specific_race);
+	//serialise relevant data
+	if (specific_race.candidates.length < 3){
+		var dummy_candidate = {
+			name : " ",
+			pc_committee : 0.0,
+			pc_noncommittee: 0.0,
+			pc_overall : 0.0,
+		}
+		specific_race.candidates.push(dummy_candidate);
+
+	}
+	for (each_candidate in specific_race.candidates) {
+		var specific_candidate = specific_race.candidates[each_candidate];
+		candidate_names.push(specific_candidate.name);
+		committee_data.push(specific_candidate.pc_committee);
+		noncommittee_data.push(specific_candidate.pc_noncommittee);
+	}
+	//prepare config
+
+	var config = {
+			type: 'radar',
+			data: {
+				labels: candidate_names,//array of candidate names for race
+				datasets: [{
+					label: 'Committee',
+					backgroundColor: 'rgba(68,147,66,0.2)',
+					borderColor: 'rgba(68,147,66,1)',
+					pointBackgroundColor: 'rgba(68,147,66,1)',
+					data: committee_data
+				}, {
+					label: 'Noncommittee',
+					backgroundColor: 'rgba(161,177,164,0.2)',
+					borderColor: 'rgba(161,177,164,1)',
+					pointBackgroundColor: 'rgba(161,177,164,1)',
+					data: noncommittee_data
+				}]
+			},
+			options: {
+				plugins: {
+					datalabels: {
+						backgroundColor: function(context) {
+							return context.dataset.borderColor;
+						},
+						color: 'white',
+						padding: 4,
+						font: {
+							size: 10,
+							weight: 'bold'
+						},
+						formatter: Math.round
+					}
+				},
+				legend: {
+					position: 'top',
+				},
+				title: {
+					display: true,
+					text: specific_race.race_name,
+				},
+				scale: {
+					ticks: {
+						beginAtZero: true
+					}
+				}
+			}
+		};
+	//create canvas for chart
+	var node = document.createElement("canvas");
+	node.id = 'radarchart'+each_race;
+	var div_id = "master_"+toggleLR;
+	document.getElementById(div_id).appendChild(node);
+	//document.body.innerHTML += '<canvas id="radarchart'+each_race+'"></canvas>'; // the += means we add this to the inner HTML of body
+	//document.getElementById('master').innerHTML = '<canvas id="radarchart'+each_race+'"></canvas>'; // replaces the inner HTML of #someBox to a canvas
+	//launch chart into canvas
+	charts_of_races[each_race] = new Chart(document.getElementById("radarchart"+each_race), config);
+	console.log(charts_of_races);
+
+}
+
+
+			
+		
+
+		
+	</script>
+</body>
+
+</html>
+
+
+
+</script>
+</body>
+
