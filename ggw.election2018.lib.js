@@ -64,9 +64,7 @@ function assemble_election_data(candidate_info, votes_committee, votes_noncommit
 	var overall_presentations_by_id = [];
 	var committee_presentations_by_id = [];
 	var noncommittee_presentations_by_id = [];
-	var val_overall_votes_by_id = [];
-	var val_committee_votes_by_id = [];
-	var val_noncommittee_votes_by_id = [];
+
 	for (var candidate_num = 1; candidate_num <= 196; candidate_num++) {
 		overall_presentations_by_id.push(0);
 		committee_presentations_by_id.push(0);
@@ -144,9 +142,7 @@ function assemble_election_data(candidate_info, votes_committee, votes_noncommit
 			num_overall 		: -1,
 			num_committee 		: votes_committee[race].ontop,
 			num_noncommittee 	: -1,
-			val_num_overall		: -1,
-			val_num_committee	: -1,
-			val_num_noncommittee : -1,
+
 			pc_overall			: -0.1,
 			pc_committee		: -0.1,
 			pc_noncommittee		: -0.1,
@@ -184,9 +180,7 @@ function assemble_election_data(candidate_info, votes_committee, votes_noncommit
 				num_overall 		: votes_noncommittee[race].ontop,
 				num_committee 		: 0,
 				num_noncommittee 	: votes_noncommittee[race].ontop,
-			val_num_overall		: -1,
-			val_num_committee	: -1,
-			val_num_noncommittee : -1,
+
 				pc_overall			: -0.1,
 				pc_committee		: -0.1,
 				pc_noncommittee		: -0.1,
@@ -199,9 +193,7 @@ function assemble_election_data(candidate_info, votes_committee, votes_noncommit
 //			console.log("Race: "+election_data[race_id].race_name+" New Candidate: "+election_data[race_id].candidates[candidate_id].name);
 		};
 //		console.log("Race: "+election_data[race_id].race_name+" Current Candidate: "+election_data[race_id].candidates[candidate_id].name + " Adding " + votes_noncommittee[race].ontop + " to noncommittee vote totals");
-		election_data[race_id].candidates[candidate_id].val_num_overall			= 
-		election_data[race_id].candidates[candidate_id].val_num_committee 		= 
-		election_data[race_id].candidates[candidate_id].val_num_noncommittee 	= 
+
 		election_data[race_id].candidates[candidate_id].num_noncommittee = votes_noncommittee[race].ontop;
 		election_data[race_id].candidates[candidate_id].num_overall = election_data[race_id].candidates[candidate_id].num_noncommittee + election_data[race_id].candidates[candidate_id].num_committee;
 		election_data[race_id].candidates[candidate_id].pc_overall 		= (100 * election_data[race_id].candidates[candidate_id].num_overall) 		/ (election_data[race_id].candidates[candidate_id].overall_presentations);
