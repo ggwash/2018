@@ -36,24 +36,44 @@ function getCandidateIDinBios(candidate_name,candidate_biodata) {
 		if (candidate_name == candidate_biodata[specificcandidate].name) {
 			wasCandidateFound = 1;
 			return candidate_biodata[specificcandidate].candidate_id;
-		}
+		};
 
-	}
+	};
 	if (wasCandidateFound == 0) {
 		console.log("CANDIDATE " +candidate_name +" NOT FOUND IN CANONICAL DATA SOURCE!!!")
 		return -1;
 	};
+};
 
-}
+function getCandidateIDfromResponse(queried_response_id, candidate_responses) {
+	var wasResponseFound = 0;
+	for (const specific_response in candidate_responses) {
+//		console.log("Comparing Loop: "+candidate_responses[specific_response].response_id+ " with Parameter: "+queried_response_id);
+		if (candidate_responses[specific_response].response_id == queried_response_id) {
+			wasResponseFound = 1;
+			return candidate_responses[specific_response].candidate_id;
+		};
+	};
+	if (wasResponseFound == 0) {
+		console.log("RESPONSE " +queried_response_id +" NOT FOUND IN CANONICAL DATA SOURCE!!!")
+		return -1;
+	};
+};
 
 function assemble_election_data(candidate_info, votes_committee, votes_noncommittee, candidate_responses, rating_instances) {
 	var overall_presentations_by_id = [];
 	var committee_presentations_by_id = [];
 	var noncommittee_presentations_by_id = [];
+	var val_overall_votes_by_id = [];
+	var val_committee_votes_by_id = [];
+	var val_noncommittee_votes_by_id = [];
 	for (var candidate_num = 1; candidate_num <= 196; candidate_num++) {
 		overall_presentations_by_id.push(0);
 		committee_presentations_by_id.push(0);
 		noncommittee_presentations_by_id.push(0);
+		val_overall_votes_by_id.push(0);
+		val_committee_votes_by_id.push(0);
+		val_noncommittee_votes_by_id.push(0);
 	};
 	for (const current_rating_event in rating_instances) {
 		   /* "fields": [
@@ -71,21 +91,24 @@ function assemble_election_data(candidate_info, votes_committee, votes_noncommit
       "comments",
       "time_rated"
     ] */
-    	//console.log(rating_instances);
-    //	console.log("Current rating event: "+current_rating_event);
+    //	console.log(rating_instances);
+   // 	console.log(candidate_responses);
+   // 	console.log("Current rating event: "+current_rating_event);
    // 	console.log(rating_instances[current_rating_event]);
-    	var response_id1_for_event = rating_instances[current_rating_event].response1_id -1;
-    	var response_id2_for_event = rating_instances[current_rating_event].response2_id -1;
+    	var response_id1_for_event = rating_instances[current_rating_event].response1_id;
+    	var response_id2_for_event = rating_instances[current_rating_event].response2_id;
     	var committee_status_of_event = rating_instances[current_rating_event].ec_member;
     	if ((response_id1_for_event < rating_instances.length ) && (response_id2_for_event < rating_instances.length)) {
-    		var candidate_id_of_response = (candidate_responses[response_id1_for_event].candidate_id -1);
+    		var candidate_id_of_response = getCandidateIDfromResponse(response_id1_for_event,candidate_responses);
+			candidate_id_of_response--;
 			overall_presentations_by_id[candidate_id_of_response]++;
 			if (committee_status_of_event) {
 				committee_presentations_by_id[candidate_id_of_response]++;	
 			} else {
 				noncommittee_presentations_by_id[candidate_id_of_response]++;
 			}
-			candidate_id_of_response = (candidate_responses[response_id2_for_event].candidate_id -1);
+			candidate_id_of_response = getCandidateIDfromResponse(response_id2_for_event,candidate_responses);
+			candidate_id_of_response--;
 			overall_presentations_by_id[candidate_id_of_response]++;
 			if (committee_status_of_event) {
 				committee_presentations_by_id[candidate_id_of_response]++;	
@@ -121,6 +144,9 @@ function assemble_election_data(candidate_info, votes_committee, votes_noncommit
 			num_overall 		: -1,
 			num_committee 		: votes_committee[race].ontop,
 			num_noncommittee 	: -1,
+			val_num_overall		: -1,
+			val_num_committee	: -1,
+			val_num_noncommittee : -1,
 			pc_overall			: -0.1,
 			pc_committee		: -0.1,
 			pc_noncommittee		: -0.1,
@@ -158,6 +184,9 @@ function assemble_election_data(candidate_info, votes_committee, votes_noncommit
 				num_overall 		: votes_noncommittee[race].ontop,
 				num_committee 		: 0,
 				num_noncommittee 	: votes_noncommittee[race].ontop,
+			val_num_overall		: -1,
+			val_num_committee	: -1,
+			val_num_noncommittee : -1,
 				pc_overall			: -0.1,
 				pc_committee		: -0.1,
 				pc_noncommittee		: -0.1,
@@ -170,12 +199,14 @@ function assemble_election_data(candidate_info, votes_committee, votes_noncommit
 //			console.log("Race: "+election_data[race_id].race_name+" New Candidate: "+election_data[race_id].candidates[candidate_id].name);
 		};
 //		console.log("Race: "+election_data[race_id].race_name+" Current Candidate: "+election_data[race_id].candidates[candidate_id].name + " Adding " + votes_noncommittee[race].ontop + " to noncommittee vote totals");
-
+		election_data[race_id].candidates[candidate_id].val_num_overall			= 
+		election_data[race_id].candidates[candidate_id].val_num_committee 		= 
+		election_data[race_id].candidates[candidate_id].val_num_noncommittee 	= 
 		election_data[race_id].candidates[candidate_id].num_noncommittee = votes_noncommittee[race].ontop;
 		election_data[race_id].candidates[candidate_id].num_overall = election_data[race_id].candidates[candidate_id].num_noncommittee + election_data[race_id].candidates[candidate_id].num_committee;
-		election_data[race_id].candidates[candidate_id].pc_overall 		= (100 * election_data[race_id].candidates[candidate_id].num_overall) 		/ (100 * election_data[race_id].candidates[candidate_id].overall_presentations);
-		election_data[race_id].candidates[candidate_id].pc_committee 	= (100 * election_data[race_id].candidates[candidate_id].num_committee) 	/ (100 * election_data[race_id].candidates[candidate_id].committee_presentations);
-		election_data[race_id].candidates[candidate_id].pc_noncommittee	= (100 * election_data[race_id].candidates[candidate_id].num_noncommittee) 	/ (100 * election_data[race_id].candidates[candidate_id].noncommittee_presentations);
+		election_data[race_id].candidates[candidate_id].pc_overall 		= (100 * election_data[race_id].candidates[candidate_id].num_overall) 		/ (election_data[race_id].candidates[candidate_id].overall_presentations);
+		election_data[race_id].candidates[candidate_id].pc_committee 	= (100 * election_data[race_id].candidates[candidate_id].num_committee) 	/ (election_data[race_id].candidates[candidate_id].committee_presentations);
+		election_data[race_id].candidates[candidate_id].pc_noncommittee	= (100 * election_data[race_id].candidates[candidate_id].num_noncommittee) 	/ (election_data[race_id].candidates[candidate_id].noncommittee_presentations);
 
 
 	};
