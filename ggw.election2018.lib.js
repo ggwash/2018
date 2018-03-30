@@ -69,9 +69,7 @@ function assemble_election_data(candidate_info, votes_committee, votes_noncommit
 		overall_presentations_by_id.push(0);
 		committee_presentations_by_id.push(0);
 		noncommittee_presentations_by_id.push(0);
-		val_overall_votes_by_id.push(0);
-		val_committee_votes_by_id.push(0);
-		val_noncommittee_votes_by_id.push(0);
+
 	};
 	for (const current_rating_event in rating_instances) {
 		   /* "fields": [
@@ -98,6 +96,10 @@ function assemble_election_data(candidate_info, votes_committee, votes_noncommit
     	var committee_status_of_event = rating_instances[current_rating_event].ec_member;
     	if ((response_id1_for_event < rating_instances.length ) && (response_id2_for_event < rating_instances.length)) {
     		var candidate_id_of_response = getCandidateIDfromResponse(response_id1_for_event,candidate_responses);
+    		if (candidate_id_of_response == -1) {
+    			console.log("current_rating_event "+current_rating_event+" committee_status_of_event "+committee_status_of_event);
+    			console.log(rating_instances[current_rating_event]);
+    		}
 			candidate_id_of_response--;
 			overall_presentations_by_id[candidate_id_of_response]++;
 			if (committee_status_of_event) {
